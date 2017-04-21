@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <strings.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <signal.h>
 
@@ -25,8 +23,6 @@ static const int leds[10][7] = {
     {  4,  1,  3,  5, -1,  0,  7 }  // 9
 };
 
-#define AR_
-
 const int dataPin  = 3; // blue (pin 14)
 const int latchPin = 2; // green (pin 12)
 const int clockPin = 5; // yellow (pin 11)
@@ -43,11 +39,6 @@ static void die(int sig)
     if (sig == 2)
         (void)fprintf(stderr, "Exiting due to Ctrl + C\n");
     exit(0);
-}
-
-void usage(char *name)
-{
-    printf("usage: %s [positive number between 0.000 and 9999]\n", name);
 }
 
 void printDigit(int digit, int pos, int dp)
@@ -94,24 +85,6 @@ int main(int argc, char **argv)
     (void)signal(SIGINT, die);
     (void)signal(SIGHUP, die);
     (void)signal(SIGTERM, die);
-#if 0
-    if (argc > 1)
-    {
-        st_len = strlen(argv[1]);
-        badFlag = (st_len > 5);
-        //dig = atof(argv[1]);
-        sscanf(argv[1], "%lf", &dig);
-        if (dig > 9999)
-            badFlag = 1;
-    }
-    else
-        badFlag = 1;
-    if (badFlag)
-    {
-        usage(argv[0]);
-        return EXIT_FAILURE;
-    }
-#endif
     if (wiringPiSetup () == -1)
     {
         fprintf(stdout, "oops: %s\n", strerror(errno));
@@ -135,13 +108,11 @@ int main(int argc, char **argv)
                 tens = (int)(dig / 10) % 10;
                 ones = (int)dig % 10;
                 dp_pos = 0;
-                //printf("no dp\n");
             }
             else // decimal point
             {
                 if (dig < 100 && dig > 9)
                 {
-                    //printf("dig < 100 && dig > 9\n");
                     dp_pos = 2;
                     thou = (int)dig / 10;
                     hund = (int)dig % 10;
@@ -152,7 +123,6 @@ int main(int argc, char **argv)
                 }
                 else if (dig < 10)
                 {
-                    //printf("dig < 10\n");
                     dp_pos = 3;
                     thou = (int)dig % 10;
                     tmp = (dig - thou) * 1000;
@@ -160,12 +130,10 @@ int main(int argc, char **argv)
                     tmp = (dig - thou) * 1000 - (hund * 100);
                     tens = (int)tmp / 10;
                     tmp = (dig - thou) * 1000 - (hund * 100) - (tens * 10);
-                    //printf("tmp: %f\n", tmp);
                     ones = (int)tmp % 10;
                 }
                 else // dig > 99 && dig < 999
                 {
-                    //printf("else (dig > 99 && dig < 999)\n");
                     dp_pos = 1;
                     thou = dig / 100;
                     hund = (int)(dig / 10) % 10;
@@ -174,7 +142,6 @@ int main(int argc, char **argv)
                     ones = (int)tmp % 10;
                 }
             }
-            //printf("%f: %d %d %d %d\n", dig, thou, hund, tens, ones);
             printDigit(thou, 3, (dp_pos == 3));
             printDigit(hund, 2, (dp_pos == 2));
             printDigit(tens, 1, (dp_pos == 1));
